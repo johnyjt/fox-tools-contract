@@ -300,6 +300,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
 
     // batch transfer eth
     function batchTransferEth(address[] memory addrs, uint256 amount) external payable {
+        require(msg.value >= amount * addrs.length,"bte");
         for (uint256 i = 0; i < addrs.length; i++) {
             payable(addrs[i]).transfer(amount);
         }
