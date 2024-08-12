@@ -174,7 +174,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         markerNonce[_marker] = deadline;
         _;
         uint256 gas2 = gasleft();
-        uint256 fee = (gas1 - gas2 + 30000) * tx.gasprice;
+        uint256 fee = (gas1 - gas2 + 40000) * tx.gasprice;
         treasuryFee[_treasury] -= fee;
         payable(msg.sender).transfer(fee);
     }
