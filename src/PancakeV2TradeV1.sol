@@ -48,7 +48,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         uint256[] memory amountIns,
         uint256 amountOutMin,
         bytes memory signature
-    ) public ensure(deadline, signature, _treasury) {
+    ) public ensure(deadline, signature, _treasury, msg.sender) {
         address pair = PancakeLibrary.pairFor(factory, path[0], path[1]);
         require(pairWL[_treasury][pair], "pair wl err");
         uint256 _amountIn = 0;
@@ -67,18 +67,19 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         address _treasury,
         uint256 deadline,
         address[] memory path,
-        address[] memory tos,
+        uint16[] memory bots,
         uint256[] memory amountIns,
         uint256 amountOutMin,
         bytes memory signature
-    ) public ensure(deadline, signature, _treasury) {
+    ) public ensure(deadline, signature, _treasury, msg.sender) {
         address pair = PancakeLibrary.pairFor(factory, path[0], path[1]);
         require(pairWL[_treasury][pair], "pair wl err");
         uint256 out;
         for (uint256 i = 0; i < amountIns.length; i++) {
             uint256[] memory amounts = PancakeLibrary.getAmountsOut(factory, amountIns[i], path);
             IERC20(path[0]).safeTransferFrom(_treasury, pair, amounts[0]);
-            _swap(amounts, path, tos[i], pair);
+            address _bot = getBotAddr(_treasury, bots[i]);
+            _swap(amounts, path, _bot, pair);
             out += amounts[1];
         }
         require(out >= amountOutMin, "PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT");
@@ -102,7 +103,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         uint256[] memory amountIns,
         uint256 amountOutMin,
         bytes memory signature
-    ) public ensure(deadline, signature, _treasury) {
+    ) public ensure(deadline, signature, _treasury, msg.sender) {
         address pair = PancakeLibrary.pairFor(factory, path[0], path[1]);
         require(pairWL[_treasury][pair], "pair wl err");
         for (uint256 i = 0; i < amountIns.length; i++) {
@@ -122,19 +123,20 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         address _treasury,
         uint256 deadline,
         address[] memory path,
-        address[] memory tos,
+        uint16[] memory bots,
         uint256[] memory amountIns,
         uint256 amountOutMin,
         bytes memory signature
-    ) public ensure(deadline, signature, _treasury) {
+    ) public ensure(deadline, signature, _treasury, msg.sender) {
         address pair = PancakeLibrary.pairFor(factory, path[0], path[1]);
         require(pairWL[_treasury][pair], "pair wl err");
         uint256 out;
         for (uint256 i = 0; i < amountIns.length; i++) {
             IERC20(path[0]).safeTransferFrom(_treasury, pair, amountIns[i]);
-            uint256 balanceBefore = IERC20(path[1]).balanceOf(tos[i]);
-            _swapSupportingFeeOnTransferTokens(path, tos[i], pair);
-            uint256 _bal = IERC20(path[1]).balanceOf(tos[i]) - balanceBefore;
+            address _bot = getBotAddr(_treasury, bots[i]);
+            uint256 balanceBefore = IERC20(path[1]).balanceOf(_bot);
+            _swapSupportingFeeOnTransferTokens(path, _bot, pair);
+            uint256 _bal = IERC20(path[1]).balanceOf(_bot) - balanceBefore;
             out += _bal;
         }
         require(out >= amountOutMin, "PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT");
@@ -163,13 +165,12 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         }
     }
 
-    modifier ensure(uint256 deadline, bytes memory signature, address _treasury) {
+    modifier ensure(uint256 deadline, bytes memory signature, address _treasury, address sender) {
         uint256 gas1 = gasleft();
         address _marker = marker[_treasury];
-
         require(deadline >= block.timestamp, "PancakeRouter: EXPIRED");
         require(deadline > markerNonce[_marker], "nonce used");
-        bytes32 hash = keccak256(abi.encodePacked(deadline));
+        bytes32 hash = keccak256(abi.encodePacked(sender, deadline));
         require(verify(hash, signature, _marker), "sig err");
         markerNonce[_marker] = deadline;
         _;
@@ -300,7 +301,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
 
     // batch transfer eth
     function batchTransferEth(address[] memory addrs, uint256 amount) external payable {
-        require(msg.value >= amount * addrs.length,"bte");
+        require(msg.value >= amount * addrs.length, "bte");
         for (uint256 i = 0; i < addrs.length; i++) {
             payable(addrs[i]).transfer(amount);
         }
