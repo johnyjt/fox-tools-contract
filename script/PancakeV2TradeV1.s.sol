@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
 
-import {ExecutorBot} from "../src/ExecutorBot.sol";
 import {ERC20Mock} from "../src/ERC20Mock.sol";
 import {PancakeV2TradeV1} from "../src/PancakeV2TradeV1.sol";
 import {IPancakeRouter01} from "../src/interfaces/IPancakeRouter01.sol";
@@ -26,9 +25,7 @@ contract PancakeV2TradeV1Test is Script {
     function test_trade() public {
         sender = vm.addr(vm.envUint("OP_PRI"));
         vm.startBroadcast(vm.envUint("OP_PRI"));
-        PancakeV2TradeV1 trade = new PancakeV2TradeV1(factory);
-        ExecutorBot bot = new ExecutorBot(address(trade));
-        trade.setBotImpl(address(bot));
+        PancakeV2TradeV1 trade = new PancakeV2TradeV1(factory,router);
 
         ERC20Mock usdt = new ERC20Mock("USDT", "USDT");
         ERC20Mock token = new ERC20Mock("TEST", "TEST");
