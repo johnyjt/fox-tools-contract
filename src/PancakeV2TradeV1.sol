@@ -66,7 +66,7 @@ interface IPancakeV3Factory {
 }
 
 contract ExecutorBot {
-    address immutable owner;
+    address public immutable owner;
 
     constructor(address _owner) {
         owner = _owner;
@@ -259,8 +259,7 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
     {
         address pool = getPancakeV3Pool(params.tokenIn, params.tokenOut, params.fee);
         require(pairWL[_treasury][pool], "pool wl err");
-        address _bot = getBotAddr(_treasury, botId);
-        require(_bot == params.recipient, "rec err");
+        address _bot = createOrGetBot(_treasury, botId);
         IERC20(params.tokenIn).safeTransferFrom(_treasury, _bot, params.amountIn);
         _internalSwapV3(_bot, params);
     }
@@ -307,7 +306,6 @@ contract PancakeV2TradeV1 is Ownable, Multicall {
         }
         require(amountIn == params.amountIn, "ai err");
         require(_treasury == params.recipient, "rec err");
-
         _internalSwapV3(senderBot, params);
     }
 
