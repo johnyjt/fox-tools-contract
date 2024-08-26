@@ -4,11 +4,11 @@ pragma solidity ^0.8.13;
 import {Script, console} from "forge-std/Script.sol";
 
 import {ERC20Mock} from "../src/ERC20Mock.sol";
-import {PancakeV2TradeV1, ExecutorBot, ISwapRouter} from "../src/PancakeV2TradeV1.sol";
+import {PancakeTrade, ExecutorBot, ISwapRouter} from "../src/PancakeTrade.sol";
 import {IPancakeRouter01} from "../src/interfaces/IPancakeRouter01.sol";
 
-// forge script script/PancakeV2TradeV1.s.sol:PancakeV2TradeV1Test --rpc-url https://data-seed-prebsc-1-s3.bnbchain.org:8545  --broadcast  --slow   -vvvv
-contract PancakeV2TradeV1Test is Script {
+// forge script script/PancakeTradeTest.s.sol:PancakeTradeTest --rpc-url https://data-seed-prebsc-1-s3.bnbchain.org:8545  --broadcast  --slow   -vvvv
+contract PancakeTradeTest is Script {
     address sender;
     //pro
     // address router = 0x10ED43C718714eb63d5aA57B78B54704E256024E;
@@ -25,8 +25,8 @@ contract PancakeV2TradeV1Test is Script {
     function test_trade() public {
         sender = vm.addr(vm.envUint("OP_PRI"));
         vm.startBroadcast(vm.envUint("OP_PRI"));
-        // PancakeV2TradeV1 trade = new PancakeV2TradeV1(routerv2, routerv3);
-        PancakeV2TradeV1 trade = PancakeV2TradeV1(payable(0xb0BECf5E5e17c4B941F39880eC7bFaD1cf08dd1a));
+        // PancakeTrade trade = new PancakeTrade(routerv2, routerv3);
+        PancakeTrade trade = PancakeTrade(payable(0xb0BECf5E5e17c4B941F39880eC7bFaD1cf08dd1a));
         address impl = trade.executorBotImpl();
         address owner = ExecutorBot(impl).owner();
         console.log(owner);

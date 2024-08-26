@@ -79,7 +79,7 @@ contract ExecutorBot {
     }
 }
 
-contract PancakeV2TradeV1 is Ownable, Multicall {
+contract PancakeTrade is Ownable, Multicall {
     using SafeERC20 for IERC20;
 
     address public immutable factory;

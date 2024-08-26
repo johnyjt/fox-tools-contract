@@ -5,13 +5,11 @@ import {Script, console} from "forge-std/Script.sol";
 
 import {ERC20Mock} from "../src/ERC20Mock.sol";
 import {DEMOToken} from "../src/DEMOToken.sol";
-import {PancakeV2TradeV1} from "../src/PancakeV2TradeV1.sol";
+import {PancakeTrade} from "../src/PancakeTrade.sol";
 import {IPancakeRouter01} from "../src/interfaces/IPancakeRouter01.sol";
 
-// https://rpc.tenderly.co/fork/cb95318c-d7c8-4eb8-844c-af561053f859
-//forge script script/PancakeV2TradeV1Pro.s.sol:PancakeV2TradeV1ProTest --rpc-url https://rpc.tenderly.co/fork/70d23449-2d7c-4fac-89dd-6adb0778b4cf  --broadcast  --slow   -vvvv
-// forge script script/PancakeV2TradeV1Pro.s.sol:PancakeV2TradeV1ProTest --rpc-url https://data-seed-prebsc-1-s3.bnbchain.org:8545  --broadcast  --slow   -vvvv
-contract PancakeV2TradeV1ProTest is Script {
+// forge script script/PancakeTradePro.s.sol:PancakeTradePro --rpc-url https://data-seed-prebsc-1-s3.bnbchain.org:8545  --broadcast  --slow   -vvvv
+contract PancakeTradePro is Script {
     address sender; //0x53eB7B6EF76d3a5b28F845EFf76280cF98DD7eeF
     //pro
     address router = 0x10ED43C718714eb63d5aA57B78B54704E256024E;
@@ -28,8 +26,8 @@ contract PancakeV2TradeV1ProTest is Script {
     function test_trade() public {
         sender = vm.addr(vm.envUint("OP_PRI_PRO"));
         vm.startBroadcast(vm.envUint("OP_PRI_PRO"));
-        PancakeV2TradeV1 trade = new PancakeV2TradeV1(factory,router);
-        // PancakeV2TradeV1 trade = PancakeV2TradeV1(payable(0x04F08c16aFD8Ef1bc36A426af3badA5Cf2789Cdf));
+        PancakeTrade trade = new PancakeTrade(factory, router);
+        // PancakeTrade trade = PancakeTrade(payable(0x04F08c16aFD8Ef1bc36A426af3badA5Cf2789Cdf));
 
         // ERC20Mock usdt = new ERC20Mock("USDT", "USDT");
         // ERC20Mock token = new ERC20Mock("TEST", "TEST");
@@ -42,7 +40,6 @@ contract PancakeV2TradeV1ProTest is Script {
         // DEMOToken token = new DEMOToken("BURNABLE", "BURN",1e28);
         // DEMOToken token = DEMOToken(0x90b2fDb5D5c5e4cA191c6CDd75cA0805Ca39167A);
         // trade.getPair(address(usdt), address(token));
-
 
         // token.setBindValid(1);
         // token.setRewardPool(sender);
